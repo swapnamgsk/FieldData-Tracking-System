@@ -1,73 +1,109 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import TestRecord from '@/models/form'
+import TestRecord from '@/models/plumberModel'
 import { connectToDatabase } from '@/utils/db'
 
+// export async function createCrud(
+//     projectName: string,
+//     locationAddress: string,
+//     technicianName: string,
+//     floorName: string,
+//     recordType: 'start' | 'end',
+//     date: string,
+//     time: string,
+//     readingPressure: number,
+//     pipingImageUrl: string
+// ) {
+//     try {
+//         await connectToDatabase()
+//         console.log('Connected to database')
+
+//         // Validate input data
+//         if (!technicianName || !floorName || !readingPressure) {
+//             throw new Error('Missing required fields')
+//         }
+
+//         // Create new record with explicit date handling
+//         const newRecord = await TestRecord.create({
+//             projectName: projectName.trim(),
+//             locationAddress: locationAddress.trim(),
+//             technicianName: technicianName.trim(),
+//             floorName: floorName.trim(),
+//             recordType: recordType, // Explicitly set record type
+//             date: new Date(date), // Convert string date to Date object
+//             time: time,
+//             readingPressure: Number(readingPressure),
+//             pipingImageUrl: pipingImageUrl.trim()
+//         })
+
+//         console.log('Created new record:', newRecord)
+
+//         // Serialize the new record before returning
+//         const serializedRecord = {
+//             _id: newRecord._id.toString(),
+//             projectName: newRecord.projectName,
+//             locationAddress: newRecord.locationAddress,
+//             technicianName: newRecord.technicianName,
+//             floorName: newRecord.floorName,
+//             recordType: newRecord.recordType,
+//             date: newRecord.date.toISOString(),
+//             time: newRecord.time,
+//             readingPressure: newRecord.readingPressure,
+//             pipingImageUrl: newRecord.pipingImageUrl,
+//             createdAt: newRecord.createdAt?.toISOString(),
+//             updatedAt: newRecord.updatedAt?.toISOString()
+//         }
+
+//         revalidatePath('/ui')
+
+//         return { 
+//             success: true, 
+//             data: serializedRecord 
+//         }
+//     } catch (error) {
+//         console.error('Error in createCrud:', error)
+//         return { 
+//             success: false, 
+//             error: error instanceof Error ? error.message : 'Failed to create record'
+//         }
+//     }
+// }
+
+
 export async function createCrud(
-    projectName: string,
-    locationAddress: string,
-    technicianName: string,
-    floorName: string,
-    recordType: 'start' | 'end',
-    date: string,
-    time: string,
-    readingPressure: number,
-    pipingImageUrl: string
+  projectName: string,
+  locationAddress: string,
+  technicianName: string,
+  floorName: string,
+  recordType: 'start' | 'end',
+  date: string,
+  time: string,
+  readingPressure: number,
+  imageBase64: string // Receive image as base64
 ) {
-    try {
-        await connectToDatabase()
-        console.log('Connected to database')
+  try {
+    await connectToDatabase();
 
-        // Validate input data
-        if (!technicianName || !floorName || !readingPressure) {
-            throw new Error('Missing required fields')
-        }
+    const newRecord = new TestRecord({
+      projectName,
+      locationAddress,
+      technicianName,
+      floorName,
+      recordType,
+      date,
+      time,
+      readingPressure,
+      image: imageBase64, // Store image in base64
+    });
 
-        // Create new record with explicit date handling
-        const newRecord = await TestRecord.create({
-            projectName: projectName.trim(),
-            locationAddress: locationAddress.trim(),
-            technicianName: technicianName.trim(),
-            floorName: floorName.trim(),
-            recordType: recordType, // Explicitly set record type
-            date: new Date(date), // Convert string date to Date object
-            time: time,
-            readingPressure: Number(readingPressure),
-            pipingImageUrl: pipingImageUrl.trim()
-        })
+    await newRecord.save();
+    revalidatePath('/'); // Refresh UI
 
-        console.log('Created new record:', newRecord)
-
-        // Serialize the new record before returning
-        const serializedRecord = {
-            _id: newRecord._id.toString(),
-            projectName: newRecord.projectName,
-            locationAddress: newRecord.locationAddress,
-            technicianName: newRecord.technicianName,
-            floorName: newRecord.floorName,
-            recordType: newRecord.recordType,
-            date: newRecord.date.toISOString(),
-            time: newRecord.time,
-            readingPressure: newRecord.readingPressure,
-            pipingImageUrl: newRecord.pipingImageUrl,
-            createdAt: newRecord.createdAt?.toISOString(),
-            updatedAt: newRecord.updatedAt?.toISOString()
-        }
-
-        revalidatePath('/ui')
-
-        return { 
-            success: true, 
-            data: serializedRecord 
-        }
-    } catch (error) {
-        console.error('Error in createCrud:', error)
-        return { 
-            success: false, 
-            error: error instanceof Error ? error.message : 'Failed to create record'
-        }
-    }
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
 }
 
 export async function getAllCruds() {
@@ -105,6 +141,48 @@ export async function getAllCruds() {
         }
     }
 }
+
+
+// Define the TypeScript type for test records
+export type TestRecordType = {
+  _id: string;
+  projectName: string;
+  locationAddress: string;
+  technicianName: string;
+  floorName: string;
+  recordType: "start" | "end";
+  date: string;
+  time: string;
+  readingPressure: number;
+  image: string;
+};
+
+// Server action to fetch all test records
+export async function getTestRecords(): Promise<TestRecordType[]> {
+  try {
+    await connectToDatabase();
+    
+    const records = await TestRecord.find().lean().select("-__v"); // Fetch records without __v
+
+    return records.map((record) => ({
+      _id: String(record._id), // Ensure _id is always a string
+      projectName: record.projectName,
+      locationAddress: record.locationAddress,
+      technicianName: record.technicianName,
+      floorName: record.floorName,
+      recordType: record.recordType,
+      date: record.date,
+      time: record.time,
+      readingPressure: record.readingPressure,
+      image: record.image,
+    }));
+  } catch (error) {
+    console.error("Error fetching test records:", error);
+    return [];
+  }
+}
+
+
 
 export async function deleteCrud(id: string) {
     try {

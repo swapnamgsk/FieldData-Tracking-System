@@ -339,11 +339,218 @@
 
 
 
-'use client'
+// 'use client'
 
-import { useState, useEffect } from 'react'
-import { format } from 'date-fns'
-import { createCrud } from '@/lib/actions/plumberActions'
+// import { useState, useEffect } from 'react'
+// import { format } from 'date-fns'
+// import { createCrud } from '@/lib/actions/plumberActions'
+
+// export default function PostingForm({ onRecordCreated }: { onRecordCreated: () => void }) {
+//   const [formData, setFormData] = useState({
+//     projectName: '',
+//     locationAddress: '',
+//     technicianName: '',
+//     floorName: '',
+//     recordType: 'start' as 'start' | 'end',
+//     date: format(new Date(), 'yyyy-MM-dd'),
+//     time: format(new Date(), 'hh:mm a'),
+//     readingPressure: ''
+//   })
+
+//   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+//   const [previewImage, setPreviewImage] = useState<string | null>(null)
+//   const [message, setMessage] = useState('')
+
+//   // Update time every second
+//   useEffect(() => {
+//     const timer = setInterval(() => {
+//       const now = new Date()
+//       setFormData(prev => ({
+//         ...prev,
+//         time: format(now, 'hh:mm a'),
+//         date: format(now, 'yyyy-MM-dd')
+//       }))
+//     }, 1000)
+
+//     return () => clearInterval(timer)
+//   }, [])
+
+//   // Handle file selection
+//   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+//     if (event.target.files && event.target.files[0]) {
+//       const file = event.target.files[0]
+//       setSelectedFile(file)
+
+//       // Generate a preview URL
+//       const imageUrl = URL.createObjectURL(file)
+//       setPreviewImage(imageUrl)
+//     }
+//   }
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault()
+    
+//     const now = new Date()
+//     const currentDate = format(now, 'yyyy-MM-dd')
+//     const currentTime = format(now, 'hh:mm a')
+
+//     // Ensure a file is selected
+//     if (!selectedFile) {
+//       setMessage('❌ Please select an image file.')
+//       return
+//     }
+
+//     // Upload image (Implement image upload logic, e.g., to Firebase, Cloudinary, or S3)
+//     const formDataToSend = new FormData()
+//     formDataToSend.append('image', selectedFile)
+
+//     // Simulated API call to upload image and get URL (Replace with actual API)
+//     const uploadedImageUrl = 'https://example.com/uploaded-image.jpg'
+
+//     // Send form data
+//     const response = await createCrud(
+//       formData.projectName,
+//       formData.locationAddress,
+//       formData.technicianName,
+//       formData.floorName,
+//       formData.recordType,
+//       currentDate,
+//       currentTime,
+//       Number(formData.readingPressure),
+//       uploadedImageUrl // Use the actual uploaded image URL
+//     )
+
+//     if (response.success) {
+//       setMessage(`✅ ${formData.recordType.toUpperCase()} record created at ${currentTime}`)
+//       setFormData(prev => ({
+//         projectName: '',
+//         locationAddress: '',
+//         technicianName: '',
+//         floorName: '',
+//         recordType: prev.recordType,
+//         date: format(new Date(), 'yyyy-MM-dd'),
+//         time: format(new Date(), 'hh:mm a'),
+//         readingPressure: ''
+//       }))
+//       setSelectedFile(null)
+//       setPreviewImage(null)
+//       onRecordCreated()
+//     } else {
+//       setMessage('❌ Failed to create record')
+//     }
+//   }
+
+//   return (
+//     <div className="space-y-6">
+//       <div className="bg-[#150D29] p-6 rounded-lg shadow-xl border border-[#4A2189]">
+//         <h2 className="text-2xl font-semibold mb-6 text-white">Create New Record</h2>
+//         <form onSubmit={handleSubmit} className="space-y-4">
+//           <div className="space-y-4">
+//             <input
+//               type="text"
+//               placeholder="Project Name"
+//               value={formData.projectName}
+//               onChange={(e) => setFormData({...formData, projectName: e.target.value})}
+//               className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
+//               required
+//             />
+//             <input
+//               type="text"
+//               placeholder="Location Address"
+//               value={formData.locationAddress}
+//               onChange={(e) => setFormData({...formData, locationAddress: e.target.value})}
+//               className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
+//               required
+//             />
+//             <input
+//               type="text"
+//               placeholder="Technician Name"
+//               value={formData.technicianName}
+//               onChange={(e) => setFormData({...formData, technicianName: e.target.value})}
+//               className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
+//               required
+//             />
+//             <input
+//               type="text"
+//               placeholder="Floor Name"
+//               value={formData.floorName}
+//               onChange={(e) => setFormData({...formData, floorName: e.target.value})}
+//               className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
+//               required
+//             />
+
+//             <div className="flex gap-4 p-3 border border-[#4A2189] rounded bg-[#0D0718]">
+//               <label className="flex items-center text-white">
+//                 <input
+//                   type="radio"
+//                   value="start"
+//                   checked={formData.recordType === 'start'}
+//                   onChange={() => setFormData({...formData, recordType: 'start'})}
+//                   className="mr-2 accent-[#8540EC]"
+//                 />
+//                 Start Record
+//               </label>
+//               <label className="flex items-center text-white">
+//                 <input
+//                   type="radio"
+//                   value="end"
+//                   checked={formData.recordType === 'end'}
+//                   onChange={() => setFormData({...formData, recordType: 'end'})}
+//                   className="mr-2 accent-[#8540EC]"
+//                 />
+//                 End Record
+//               </label>
+//             </div>
+
+//             <input
+//               type="number"
+//               placeholder="Reading Pressure (PSI)"
+//               value={formData.readingPressure}
+//               onChange={(e) => setFormData({...formData, readingPressure: e.target.value})}
+//               className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
+//               required
+//             />
+
+//             <input
+//               type="file"
+//               accept="image/*"
+//               onChange={handleFileChange}
+//               className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white"
+//               required
+//             />
+
+//             {previewImage && (
+//               <div className="mt-4">
+//                 <p className="text-white text-sm">Image Preview:</p>
+//                 <img src={previewImage} alt="Preview" className="mt-2 rounded-lg max-h-40" />
+//               </div>
+//             )}
+//           </div>
+
+//           <button
+//             type="submit"
+//             className="w-full p-3 bg-[#8540EC] text-white rounded hover:bg-[#4A2189] transition-colors"
+//           >
+//             Save Record
+//           </button>
+//         </form>
+//       </div>
+
+//       {message && (
+//         <div className="p-4 text-center rounded-lg bg-[#150D29] border border-[#4A2189] text-white">
+//           {message}
+//         </div>
+//       )}
+//     </div>
+//   )
+// }
+
+
+'use client';
+
+import { useState } from 'react';
+import { createCrud } from '@/lib/actions/plumberActions';
+import { format } from 'date-fns';
 
 export default function PostingForm({ onRecordCreated }: { onRecordCreated: () => void }) {
   const [formData, setFormData] = useState({
@@ -351,196 +558,102 @@ export default function PostingForm({ onRecordCreated }: { onRecordCreated: () =
     locationAddress: '',
     technicianName: '',
     floorName: '',
-    recordType: 'start' as 'start' | 'end',
+    recordType: 'start',
     date: format(new Date(), 'yyyy-MM-dd'),
-    time: format(new Date(), 'hh:mm a'),
-    readingPressure: ''
-  })
+    time: '',
+    readingPressure: '',
+  });
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
-  const [message, setMessage] = useState('')
-
-  // Update time every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date()
-      setFormData(prev => ({
-        ...prev,
-        time: format(now, 'hh:mm a'),
-        date: format(now, 'yyyy-MM-dd')
-      }))
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [])
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [message, setMessage] = useState('');
 
   // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0]
-      setSelectedFile(file)
-
-      // Generate a preview URL
-      const imageUrl = URL.createObjectURL(file)
-      setPreviewImage(imageUrl)
+    const file = event.target.files?.[0] || null;
+    setSelectedFile(file);
+    if (file) {
+      setPreviewImage(URL.createObjectURL(file));
     }
-  }
+  };
 
+  // Handle form input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    const now = new Date()
-    const currentDate = format(now, 'yyyy-MM-dd')
-    const currentTime = format(now, 'hh:mm a')
+    e.preventDefault();
 
-    // Ensure a file is selected
     if (!selectedFile) {
-      setMessage('❌ Please select an image file.')
-      return
+      setMessage('❌ Please select an image file.');
+      return;
     }
 
-    // Upload image (Implement image upload logic, e.g., to Firebase, Cloudinary, or S3)
-    const formDataToSend = new FormData()
-    formDataToSend.append('image', selectedFile)
+    setMessage('Uploading...');
 
-    // Simulated API call to upload image and get URL (Replace with actual API)
-    const uploadedImageUrl = 'https://example.com/uploaded-image.jpg'
+    // Convert image file to base64
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedFile);
+    reader.onload = async () => {
+      const imageData = reader.result as string;
 
-    // Send form data
-    const response = await createCrud(
-      formData.projectName,
-      formData.locationAddress,
-      formData.technicianName,
-      formData.floorName,
-      formData.recordType,
-      currentDate,
-      currentTime,
-      Number(formData.readingPressure),
-      uploadedImageUrl // Use the actual uploaded image URL
-    )
+      // Submit form data to server action
+      const result = await createCrud(
+        formData.projectName,
+        formData.locationAddress,
+        formData.technicianName,
+        formData.floorName,
+        formData.recordType as 'start' | 'end',
+        formData.date,
+        formData.time,
+        Number(formData.readingPressure),
+        imageData // Send image as base64
+      );
 
-    if (response.success) {
-      setMessage(`✅ ${formData.recordType.toUpperCase()} record created at ${currentTime}`)
-      setFormData(prev => ({
-        projectName: '',
-        locationAddress: '',
-        technicianName: '',
-        floorName: '',
-        recordType: prev.recordType,
-        date: format(new Date(), 'yyyy-MM-dd'),
-        time: format(new Date(), 'hh:mm a'),
-        readingPressure: ''
-      }))
-      setSelectedFile(null)
-      setPreviewImage(null)
-      onRecordCreated()
-    } else {
-      setMessage('❌ Failed to create record')
-    }
-  }
+      if (result.success) {
+        setMessage('✅ Record created successfully!');
+        setFormData({
+          projectName: '',
+          locationAddress: '',
+          technicianName: '',
+          floorName: '',
+          recordType: 'start',
+          date: format(new Date(), 'yyyy-MM-dd'),
+          time: '',
+          readingPressure: '',
+        });
+        setSelectedFile(null);
+        setPreviewImage(null);
+        onRecordCreated();
+      } else {
+        setMessage(`❌ ${result.error}`);
+      }
+    };
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-[#150D29] p-6 rounded-lg shadow-xl border border-[#4A2189]">
-        <h2 className="text-2xl font-semibold mb-6 text-white">Create New Record</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Project Name"
-              value={formData.projectName}
-              onChange={(e) => setFormData({...formData, projectName: e.target.value})}
-              className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
-              required
-            />
-            <input
-              type="text"
-              placeholder="Location Address"
-              value={formData.locationAddress}
-              onChange={(e) => setFormData({...formData, locationAddress: e.target.value})}
-              className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
-              required
-            />
-            <input
-              type="text"
-              placeholder="Technician Name"
-              value={formData.technicianName}
-              onChange={(e) => setFormData({...formData, technicianName: e.target.value})}
-              className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
-              required
-            />
-            <input
-              type="text"
-              placeholder="Floor Name"
-              value={formData.floorName}
-              onChange={(e) => setFormData({...formData, floorName: e.target.value})}
-              className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
-              required
-            />
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-lg shadow">
+      <input type="text" name="projectName" placeholder="Project Name" value={formData.projectName} onChange={handleInputChange} required className="border p-2 w-full" />
+      <input type="text" name="locationAddress" placeholder="Location Address" value={formData.locationAddress} onChange={handleInputChange} required className="border p-2 w-full" />
+      <input type="text" name="technicianName" placeholder="Technician Name" value={formData.technicianName} onChange={handleInputChange} required className="border p-2 w-full" />
+      <input type="text" name="floorName" placeholder="Floor Name" value={formData.floorName} onChange={handleInputChange} required className="border p-2 w-full" />
+      
+      <select name="recordType" value={formData.recordType} onChange={handleInputChange} required className="border p-2 w-full">
+        <option value="start">Start</option>
+        <option value="end">End</option>
+      </select>
 
-            <div className="flex gap-4 p-3 border border-[#4A2189] rounded bg-[#0D0718]">
-              <label className="flex items-center text-white">
-                <input
-                  type="radio"
-                  value="start"
-                  checked={formData.recordType === 'start'}
-                  onChange={() => setFormData({...formData, recordType: 'start'})}
-                  className="mr-2 accent-[#8540EC]"
-                />
-                Start Record
-              </label>
-              <label className="flex items-center text-white">
-                <input
-                  type="radio"
-                  value="end"
-                  checked={formData.recordType === 'end'}
-                  onChange={() => setFormData({...formData, recordType: 'end'})}
-                  className="mr-2 accent-[#8540EC]"
-                />
-                End Record
-              </label>
-            </div>
+      <input type="date" name="date" value={formData.date} onChange={handleInputChange} required className="border p-2 w-full" />
+      <input type="time" name="time" value={formData.time} onChange={handleInputChange} required className="border p-2 w-full" />
+      <input type="number" name="readingPressure" placeholder="Reading Pressure" value={formData.readingPressure} onChange={handleInputChange} required className="border p-2 w-full" />
 
-            <input
-              type="number"
-              placeholder="Reading Pressure (PSI)"
-              value={formData.readingPressure}
-              onChange={(e) => setFormData({...formData, readingPressure: e.target.value})}
-              className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white placeholder-gray-400"
-              required
-            />
+      <input type="file" accept="image/*" onChange={handleFileChange} required className="border p-2 w-full" />
+      {previewImage && <img src={previewImage} alt="Preview" className="w-32 h-32 object-cover mt-2" />}
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="w-full p-3 border border-[#4A2189] rounded bg-[#0D0718] text-white"
-              required
-            />
-
-            {previewImage && (
-              <div className="mt-4">
-                <p className="text-white text-sm">Image Preview:</p>
-                <img src={previewImage} alt="Preview" className="mt-2 rounded-lg max-h-40" />
-              </div>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full p-3 bg-[#8540EC] text-white rounded hover:bg-[#4A2189] transition-colors"
-          >
-            Save Record
-          </button>
-        </form>
-      </div>
-
-      {message && (
-        <div className="p-4 text-center rounded-lg bg-[#150D29] border border-[#4A2189] text-white">
-          {message}
-        </div>
-      )}
-    </div>
-  )
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
+      {message && <p className="text-red-500">{message}</p>}
+    </form>
+  );
 }
