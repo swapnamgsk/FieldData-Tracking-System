@@ -545,14 +545,15 @@
 //   )
 // }
 
-
 'use client';
 
 import { useState } from 'react';
 import { createCrud } from '@/lib/actions/plumberActions';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 
 export default function PostingForm({ onRecordCreated }: { onRecordCreated: () => void }) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     projectName: '',
     locationAddress: '',
@@ -560,7 +561,6 @@ export default function PostingForm({ onRecordCreated }: { onRecordCreated: () =
     floorName: '',
     recordType: 'start',
     date: format(new Date(), 'yyyy-MM-dd'),
-    time: '',
     readingPressure: '',
   });
 
@@ -593,9 +593,11 @@ export default function PostingForm({ onRecordCreated }: { onRecordCreated: () =
 
     setMessage('Uploading...');
 
+    // Get the exact current time in HH:mm format
+    const currentTime = format(new Date(), 'HH:mm');
+
     // Convert image file to base64
     const reader = new FileReader();
-    reader.readAsDataURL(selectedFile);
     reader.onload = async () => {
       const imageData = reader.result as string;
 
@@ -607,7 +609,7 @@ export default function PostingForm({ onRecordCreated }: { onRecordCreated: () =
         formData.floorName,
         formData.recordType as 'start' | 'end',
         formData.date,
-        formData.time,
+        currentTime, // Use current time instead of user input
         Number(formData.readingPressure),
         imageData // Send image as base64
       );
@@ -621,16 +623,21 @@ export default function PostingForm({ onRecordCreated }: { onRecordCreated: () =
           floorName: '',
           recordType: 'start',
           date: format(new Date(), 'yyyy-MM-dd'),
-          time: '',
           readingPressure: '',
         });
         setSelectedFile(null);
         setPreviewImage(null);
-        onRecordCreated();
+
+        if (onRecordCreated) onRecordCreated();
+
+        setTimeout(() => {
+          router.push('/records'); // Redirect to /records
+        }, 1000);
       } else {
         setMessage(`❌ ${result.error}`);
       }
     };
+    reader.readAsDataURL(selectedFile);
   };
 
   return (
@@ -645,8 +652,9 @@ export default function PostingForm({ onRecordCreated }: { onRecordCreated: () =
         <option value="end">End</option>
       </select>
 
-      <input type="date" name="date" value={formData.date} onChange={handleInputChange} required className="border p-2 w-full" />
-      <input type="time" name="time" value={formData.time} onChange={handleInputChange} required className="border p-2 w-full" />
+      {/* Prevents date input from showing a dropdown */}
+      <input type="date" name="date" value={formData.date} onChange={handleInputChange} required className="border p-2 w-full appearance-none" />
+
       <input type="number" name="readingPressure" placeholder="Reading Pressure" value={formData.readingPressure} onChange={handleInputChange} required className="border p-2 w-full" />
 
       <input type="file" accept="image/*" onChange={handleFileChange} required className="border p-2 w-full" />
