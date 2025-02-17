@@ -55,8 +55,20 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		fontFamily: {
+  			poppins: ['Poppins', 'sans-serif'],
+  		},
+  		backgroundSize: {
+  			'auto': 'auto',
+  			'cover': 'cover',
+  			'contain': 'contain',
+  			'200%': '200% auto',
+  		},
+  		backgroundPosition: {
+  			'100%': '100%',
+  		},
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 } satisfies Config;

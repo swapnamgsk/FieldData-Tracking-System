@@ -2,15 +2,18 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import './styles/signup.css';
+import Link from 'next/link';
 
 export default function SignupForm() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    role: 'user' // default role
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -21,6 +24,9 @@ export default function SignupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
@@ -33,15 +39,19 @@ export default function SignupForm() {
       const data = await response.json();
 
       if (response.ok) {
-        // Store token if needed
+        // Store token and user data
         localStorage.setItem('token', data.token);
-        // Redirect to login
-        router.push('/login');
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Redirect based on role
+        router.push(data.redirectUrl);
       } else {
         setError(data.message);
       }
     } catch (error) {
       setError('An error occurred during registration');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,9 +114,9 @@ export default function SignupForm() {
               Sign Up
             </button>
 
-            <a href="/login" className="signup-link">
+            <Link href="/login" className="signup-link">
               Already have an Account?
-            </a>
+            </Link>
           </form>
         </div>
       </div>
